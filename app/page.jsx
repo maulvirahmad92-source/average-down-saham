@@ -1,53 +1,93 @@
 "use client";
 import { useState } from "react";
 
-export default function AverageDownApp() {
-  const [rows, setRows] = useState([
-    { price: 1000, lot: 10 },
-    { price: 800, lot: 10 },
-  ]);
-  const [sellPrice, setSellPrice] = useState(950);
+export default function Home() {
+  const [harga1, setHarga1] = useState(1000);
+  const [lot1, setLot1] = useState(10);
+  const [harga2, setHarga2] = useState(800);
+  const [lot2, setLot2] = useState(10);
+  const [hargaJual, setHargaJual] = useState(950);
 
-  const addRow = () => setRows([...rows, { price: 0, lot: 0 }]);
-  const updateRow = (i, k, v) => {
-    const c = [...rows];
-    c[i][k] = Number(v);
-    setRows(c);
-  };
-
-  const totalLot = rows.reduce((a, b) => a + b.lot, 0);
-  const totalShares = totalLot * 100;
-  const totalValue = rows.reduce((a, b) => a + b.price * b.lot * 100, 0);
-  const avg = totalShares ? totalValue / totalShares : 0;
-  const pnl = (sellPrice - avg) * totalShares;
+  const totalLot = lot1 + lot2;
+  const totalLembar = totalLot * 100;
+  const totalModal =
+    harga1 * lot1 * 100 + harga2 * lot2 * 100;
+  const bep = totalModal / totalLembar;
+  const hasil =
+    (hargaJual - bep) * totalLembar;
 
   return (
-    <main style={{ maxWidth: 480, margin: "auto", padding: 20 }}>
-      <h1>📉 Average Down Saham</h1>
+    <main style={styles.page}>
+      <div style={styles.card}>
+        <h1 style={styles.title}>📈 Average Down Saham</h1>
 
-      {rows.map((r, i) => (
-        <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-          <input type="number" placeholder="Harga" value={r.price}
-            onChange={e => updateRow(i, "price", e.target.value)} />
-          <input type="number" placeholder="Lot" value={r.lot}
-            onChange={e => updateRow(i, "lot", e.target.value)} />
+        <div style={styles.grid}>
+          <input type="number" value={harga1} onChange={e => setHarga1(+e.target.value)} placeholder="Harga Beli 1" style={styles.input}/>
+          <input type="number" value={lot1} onChange={e => setLot1(+e.target.value)} placeholder="Lot 1" style={styles.input}/>
+          <input type="number" value={harga2} onChange={e => setHarga2(+e.target.value)} placeholder="Harga Beli 2" style={styles.input}/>
+          <input type="number" value={lot2} onChange={e => setLot2(+e.target.value)} placeholder="Lot 2" style={styles.input}/>
         </div>
-      ))}
 
-      <button onClick={addRow}>➕ Tambah Beli</button>
-      <hr />
+        <div style={styles.result}>
+          <p>Total Lot: <b>{totalLot}</b></p>
+          <p>Total Lembar: <b>{totalLembar}</b></p>
+          <p>Total Modal: <b>Rp {totalModal.toLocaleString()}</b></p>
+          <p>BEP: <b>Rp {bep.toFixed(2)}</b></p>
+        </div>
 
-      <p>Total Lot: <b>{totalLot}</b></p>
-      <p>Total Lembar: <b>{totalShares}</b></p>
-      <p>Total Modal: <b>Rp {totalValue.toLocaleString()}</b></p>
-      <p>BEP: <b>Rp {avg.toFixed(2)}</b></p>
+        <input
+          type="number"
+          value={hargaJual}
+          onChange={e => setHargaJual(+e.target.value)}
+          placeholder="Harga Jual"
+          style={styles.input}
+        />
 
-      <input type="number" placeholder="Harga Jual" value={sellPrice}
-        onChange={e => setSellPrice(Number(e.target.value))} />
-
-      <h3 style={{ color: pnl >= 0 ? "green" : "red" }}>
-        {pnl >= 0 ? "Untung" : "Rugi"}: Rp {pnl.toLocaleString()}
-      </h3>
+        <h2 style={{
+          color: hasil >= 0 ? "#16a34a" : "#dc2626",
+          marginTop: 10
+        }}>
+          {hasil >= 0 ? "Untung" : "Rugi"}: Rp {Math.abs(hasil).toLocaleString()}
+        </h2>
+      </div>
     </main>
   );
 }
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    background: "#f0fdf4",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20
+  },
+  card: {
+    background: "white",
+    borderRadius: 12,
+    padding: 24,
+    maxWidth: 420,
+    width: "100%",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: 20
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 10
+  },
+  input: {
+    padding: 10,
+    borderRadius: 8,
+    border: "1px solid #ccc",
+    width: "100%"
+  },
+  result: {
+    marginTop: 15,
+    lineHeight: 1.6
+  }
+};
