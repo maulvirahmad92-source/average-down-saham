@@ -2,46 +2,88 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [harga1, setHarga1] = useState(1000);
-  const [lot1, setLot1] = useState(10);
-  const [harga2, setHarga2] = useState(800);
-  const [lot2, setLot2] = useState(10);
+  const [items, setItems] = useState([
+    { harga: 1000, lot: 10 },
+    { harga: 800, lot: 10 },
+  ]);
   const [hargaJual, setHargaJual] = useState(950);
+  const [target, setTarget] = useState(5);
 
-  const totalLot = lot1 + lot2;
+  const tambahBeli = () =>
+    setItems([...items, { harga: 0, lot: 0 }]);
+
+  const totalLot = items.reduce((a, b) => a + b.lot, 0);
   const totalLembar = totalLot * 100;
-  const totalModal =
-    harga1 * lot1 * 100 + harga2 * lot2 * 100;
-  const bep = totalModal / totalLembar;
-  const hasil =
-    (hargaJual - bep) * totalLembar;
+  const totalModal = items.reduce(
+    (a, b) => a + b.harga * b.lot * 100,
+    0
+  );
+
+  const bep = totalModal / totalLembar || 0;
+  const hasil = (hargaJual - bep) * totalLembar;
+
+  const hargaTarget =
+    bep * (1 + target / 100);
 
   return (
     <main style={styles.page}>
       <div style={styles.card}>
         <h1 style={styles.title}>📈 Average Down Saham</h1>
 
-        <div style={styles.grid}>
-          <input type="number" value={harga1} onChange={e => setHarga1(+e.target.value)} placeholder="Harga Beli 1" style={styles.input}/>
-          <input type="number" value={lot1} onChange={e => setLot1(+e.target.value)} placeholder="Lot 1" style={styles.input}/>
-          <input type="number" value={harga2} onChange={e => setHarga2(+e.target.value)} placeholder="Harga Beli 2" style={styles.input}/>
-          <input type="number" value={lot2} onChange={e => setLot2(+e.target.value)} placeholder="Lot 2" style={styles.input}/>
-        </div>
+        {items.map((item, i) => (
+          <div key={i} style={styles.grid}>
+            <input
+              type="number"
+              placeholder="Harga"
+              value={item.harga}
+              onChange={e => {
+                const x = [...items];
+                x[i].harga = +e.target.value;
+                setItems(x);
+              }}
+              style={styles.input}
+            />
+            <input
+              type="number"
+              placeholder="Lot"
+              value={item.lot}
+              onChange={e => {
+                const x = [...items];
+                x[i].lot = +e.target.value;
+                setItems(x);
+              }}
+              style={styles.input}
+            />
+          </div>
+        ))}
+
+        <button onClick={tambahBeli} style={styles.btn}>
+          ➕ Tambah Average Down
+        </button>
 
         <div style={styles.result}>
           <p>Total Lot: <b>{totalLot}</b></p>
-          <p>Total Lembar: <b>{totalLembar}</b></p>
           <p>Total Modal: <b>Rp {totalModal.toLocaleString()}</b></p>
           <p>BEP: <b>Rp {bep.toFixed(2)}</b></p>
         </div>
 
         <input
           type="number"
+          placeholder="Harga Jual"
           value={hargaJual}
           onChange={e => setHargaJual(+e.target.value)}
-          placeholder="Harga Jual"
           style={styles.input}
         />
+
+        <input
+          type="number"
+          placeholder="Target Profit (%)"
+          value={target}
+          onChange={e => setTarget(+e.target.value)}
+          style={styles.input}
+        />
+
+        <p>🎯 Harga Target: <b>Rp {hargaTarget.toFixed(2)}</b></p>
 
         <h2 style={{
           color: hasil >= 0 ? "#16a34a" : "#dc2626",
@@ -78,13 +120,26 @@ const styles = {
   grid: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: 10
+    gap: 10,
+    marginBottom: 8
   },
   input: {
     padding: 10,
     borderRadius: 8,
     border: "1px solid #ccc",
-    width: "100%"
+    width: "100%",
+    marginTop: 10
+  },
+  btn: {
+    marginTop: 10,
+    width: "100%",
+    padding: 10,
+    borderRadius: 8,
+    border: "none",
+    background: "#16a34a",
+    color: "white",
+    fontWeight: "bold",
+    cursor: "pointer"
   },
   result: {
     marginTop: 15,
